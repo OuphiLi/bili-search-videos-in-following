@@ -49,18 +49,6 @@ function init(){
     run_init(0, 1, document, 'class', "header-entry-avatar")
 }
 
-function addChildIframe(src){
-    var e_father_iframe = document.body
-    iframe = document.createElement('iframe')
-    iframe.src = src
-    iframe.style.width = '500px'
-    iframe.style.height = '500px'
-    e_father_iframe.appendChild(iframe, e_father_iframe)
-    iframe.id = 'child-iframe'
-    dm = iframe.contentDocument
-}
-
-
 // flag=0代表需要继续等待，其他数字代表继续，
 function run_init(flag, next_flag, element = null, method = null, text = null) {
     // 限制访问次数，在连续搜索不到内容时，由于不同up的页面加载、run0的增加，会触发边界
@@ -138,6 +126,8 @@ function run_continue(){
 function run_search(flag, next_flag, element = null, method = null, text = null, target_i = 0, up_i = 0, page_i = 0, source_i = 0) {
     cnt++
     if(cnt >= 2000){ return }
+
+    var result
     
     console.log('1  ----    flag, next_flag :   ' +  flag + "," + next_flag)
     console.log('1  ----    target_i, up_i, page_i, source_i   :   ' + target_i + "," + up_i + "," + page_i + "," + source_i)
@@ -147,7 +137,6 @@ function run_search(flag, next_flag, element = null, method = null, text = null,
     // 每隔0.1s判断一次加载进度
     if(flag == 0){
         if(checkElement(element, method, text) == null){
-            console.log("waiting!!ing!!!ing!!!")
             // 带参数的需要写在函数内，不然会出错
             if(next_flag == 2 || next_flag == 6 || next_flag == 8){
                 // 不能直接访问document，只能通过传值
@@ -194,7 +183,7 @@ function run_search(flag, next_flag, element = null, method = null, text = null,
     // 考虑是空的情况啊啊啊
     // 第六段，读取当前页面的视频列表
     if(flag == 8){
-        result = run8GetSrcVideos(up_i)
+        var result = run8GetSrcVideos(up_i)
         if(result == 1)
             setTimeout(function(){run_search(8, 8, dm, 'class', "small-item fakeDanmu-item", target_i, up_i, page_i, 0)}, 100)
         else
@@ -203,7 +192,7 @@ function run_search(flag, next_flag, element = null, method = null, text = null,
 
     // 第七段，判断结束条件
     if(flag == 9){
-        result = run9checkBoundary(target_i, up_i, page_i, source_i)
+        var result = run9checkBoundary(target_i, up_i, page_i, source_i)
         if(result == 0) // 判断成功，继续运行
             run_search(10, 10, element, method, text, target_i, up_i, page_i, source_i)
         else if(result == 2) // 结束当前up主
@@ -267,15 +256,8 @@ function run3GetFollowingUids(){
 // 4.获取目的视频列表（主页面）
 function run4GetTargetVideos(){
     var main_target = checkElement(window.document, 'class', "video-list row")[0]
-    console.log('main')
-    console.log(main_target)
     videos_target = checkElement(main_target, 'class', "bili-video-card__wrap __scale-wrap")
-    console.log('videos')
-    console.log(videos_target)
     videos_target = selectNotHideElement(videos_target)
-    console.log('videos 2')
-    console.log(videos_target)
-
 }
 
 // 5.将子页面设为当前up主的搜索页面，重新加载
@@ -291,7 +273,7 @@ function run5ReloadChildPage(i){
     var word = regGroup(patt, window.location.href)
     console.log('1  ----    flag5   ' + '搜索词：' + '\r' + word)
 
-    src = 'https://space.bilibili.com/' + uids[i] + '/search/video?keyword=' + word
+    var src = 'https://space.bilibili.com/' + uids[i] + '/search/video?keyword=' + word
     iframe.remove()
     addChildIframe(src)
     return 0
@@ -302,11 +284,9 @@ function run6GetUpVideosInfo(up_i){
     // 双重检验，确保加载成功
     // TODO:由于remove重进了，可以不加这层判断
     var src_videos_text_2 = dm.getElementsByClassName('v-search-count')[0].textContent
-    console.log(dm.getElementsByClassName('v-search-count')[0])
     console.log('1  ----    flag6   ' + "当前up匹配的视频数2-", src_videos_text_2)
 
     var src_videos_text = dm.getElementById('submit-video-type-filter').children[0].children[0].textContent
-    console.log(dm.getElementById('submit-video-type-filter').children[0])
     console.log('1  ----    flag6   ' + "当前up匹配的视频数--", src_videos_text)
     
     if(src_videos_text_2 != src_videos_text || isNaN(src_videos_text_2) ||isNaN(src_videos_text)){
@@ -348,15 +328,12 @@ function run7ClickNextPage(page_i){
 function run8GetSrcVideos(i){
     // 获取源视频列表
     videos_src = checkElement(dm, 'class', "small-item fakeDanmu-item")
-    console.log(videos_src)
 
     var e_video_href = checkElement(videos_src[0], 'class', "title")
     if(e_video_href == null)
         return 1
 
-    video_src_href = e_video_href[0].attributes['href'].nodeValue
-    console.log(saved_video_src_href)
-    console.log(video_src_href)
+    var video_src_href = e_video_href[0].attributes['href'].nodeValue
     if(saved_video_src_href == video_src_href)
         return 1
 
@@ -413,13 +390,6 @@ function run10ReplaceSingleVideo(target_i , i, source_i){
     var player_target           =   video_target.getElementsByClassName('v-inline-player')[0]
     var later_target            =   video_target.getElementsByClassName('bili-watch-later')[0]
 
-    console.log(video_target)
-    console.log(later_target)
-
-    console.log('target')
-    console.log(img_target)
-    console.log('src')
-    console.log(img_src)
     img_target.parentElement.replaceChild(img_src, img_target)
     video_target.children[0].href = title_src.href
     author_link_target.href = iframe.src
@@ -438,16 +408,12 @@ function run10ReplaceSingleVideo(target_i , i, source_i){
 function run11CheckVideosTarget(){
     // 双重检验，确保加载成功
     var target_page = window.document.getElementsByClassName('vui_button--active-blue')[0].textContent
-    console.log(saved_target_page)
-    console.log(target_page)
     if(target_page == saved_target_page)
         return 1
 
     var main_target = checkElement(window.document, 'class', "video-list row")[0]
     var video_target = checkElement(main_target, 'class', "bili-video-card__wrap __scale-wrap")[0]
     var video_target_href = video_target.children[0].attributes['href'].nodeValue
-    console.log(saved_video_target_href)
-    console.log(video_target_href)
     if(saved_video_target_href == video_target_href)
         return 1
 
@@ -497,7 +463,18 @@ function endButton(btn){
  * 元素处理函数
  *****/
 
-// TODO:锁定下一页按钮，在更新完成后，再处理
+// 得到关注页面，以及各up主的搜索页面
+ function addChildIframe(src){
+    var e_parent_iframe = document.body
+    iframe = document.createElement('iframe')
+    iframe.src = src
+    iframe.style.width = '500px'
+    iframe.style.height = '500px'
+    e_parent_iframe.appendChild(iframe, e_parent_iframe)
+    iframe.id = 'child-iframe'
+    dm = iframe.contentDocument
+}
+
 // 筛选未隐藏的视频
 function selectNotHideElement(list){
     var result = new Array()
@@ -519,14 +496,14 @@ function fixBannerTarget(){
 
     // 删去细化筛选栏，综合/视频/番剧/用户栏；会固定按照关注顺序依次显示
     if(checkElement(document, 'class', "search-header") != null){
-        strategy_banner = document.getElementsByClassName("search-header")[0].children[3]
+        var strategy_banner = document.getElementsByClassName("search-header")[0].children[3]
         strategy_banner.style.display = "none"
     }
 
     // 删去选页栏，只留下一页；滚动显示，不保留全部内容
     // TODO:也可以预处理多花些事件，获取所有视频列表后，排序显示，可选页
     if(checkElement(document, 'class', "vui_pagenation--btns") != null){
-        page_btns = document.getElementsByClassName("vui_pagenation--btns")[0]
+        var page_btns = document.getElementsByClassName("vui_pagenation--btns")[0]
         for(var i = 0; i < page_btns.children.length - 1; ++i){
         strategy_banner.style.display = "none"
             page_btns.children[i].style.display = "none"
@@ -578,11 +555,11 @@ function checkElement(element, method, text){
 // 正则匹配
 function regGroup(patt, text){
     var matched_str = text.match(patt)
-    result = RegExp.$1
+    var result = RegExp.$1
     return result
 }
 
-// 保存过去信息
+// 保存过去信息：主页面翻页时
 function saveTargrtInfo(up_i, page_i, source_i){
     saved = 1
     saved_up_i = up_i
@@ -592,6 +569,7 @@ function saveTargrtInfo(up_i, page_i, source_i){
     saved_video_target_href = videos_target[0].children[0].attributes['href'].nodeValue
 }
 
+// 保存过去信息：子页面翻页时
 function saveSrcInfo(){
     saved_video_src_href = videos_src[0].getElementsByClassName('title')[0].attributes['href'].nodeValue
 }
