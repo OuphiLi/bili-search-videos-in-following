@@ -8,6 +8,7 @@
 // @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
 // @grant        none
 // @require      file://D:\temp\code\tampermonkey\FollowingList.js
+// @license      MPL
 
 /**
  * 全局or常用的变量名

@@ -8,6 +8,7 @@
 // @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
 // @grant        none
 // @require      file://D:\temp\code\tampermonkey\MatchedVideo.js
+// @license      MPL
 
 var cnt = 0
 
@@ -454,7 +455,8 @@ function clickFollowLi(follow_li){
 }
 
 function endButton(btn){
-    btn.style.display = 'blank'
+    console.log(btn)
+    btn.style.display = 'block'
     btn.textContent = "结束"
     btn.disabled = true
 }
